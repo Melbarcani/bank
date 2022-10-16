@@ -2,11 +2,12 @@ package account.infrastructure.adapter;
 
 import account.domain.model.Account;
 import account.domain.port.AccountPort;
+import account.infrastructure.exception.SaveAccountUnsuccessfulException;
 import account.infrastructure.mapper.AccountMapper;
-import account.infrastructure.model.AccountEntity;
 import account.infrastructure.repository.InMemoryAccountRepository;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class AccountAdapter implements AccountPort {
 
@@ -21,14 +22,16 @@ public class AccountAdapter implements AccountPort {
 
     @Override
     public Account getAccountByUserId(String userId) {
-        AccountEntity accountEntity = inMemoryAccountRepository.readAccountByUserId(userId);
+        var accountEntity = inMemoryAccountRepository.readAccountByUserId(userId);
         return accountMapper.mapToDomain(accountEntity);
     }
 
     @Override
-    public boolean saveAccount(Account account) throws IOException {
-        var accountMapper = new AccountMapper();
+    public Optional<String> saveAccount(Account account) throws IOException {
         var accountEntity = accountMapper.mapToEntity(account);
-        return inMemoryAccountRepository.writeInFile(accountEntity.getAccountData());
+        if (inMemoryAccountRepository.writeInFile(accountEntity.getAccountData())) {
+            return Optional.of(account.getAccountId());
+        }
+        throw new SaveAccountUnsuccessfulException();
     }
 }

@@ -5,10 +5,10 @@ import account.domain.port.AccountPort;
 import account.infrastructure.adapter.AccountAdapter;
 import account.infrastructure.mapper.AccountMapper;
 import account.infrastructure.repository.InMemoryAccountRepository;
+import account.use_case.Deposit;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import account.use_case.Deposit;
 import transactions.domain.model.Operation;
 import transactions.domain.model.Transaction;
 import transactions.domain.port.TransactionPort;
@@ -16,10 +16,6 @@ import transactions.infrastructure.adapter.TransactionAdapter;
 import transactions.infrastructure.mapper.TransactionMapper;
 import transactions.infrastructure.repository.InMemoryTransactionsHistoryRepository;
 import user.domain.model.User;
-import user.domain.port.UserPort;
-import user.infrastructure.repository.InMemoryUserRepository;
-import user.infrastructure.adapter.UserAdapter;
-import user.infrastructure.mapper.UserMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,21 +25,23 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class DepositFeatureTest {
     private static final String ACCOUNT_MEMORY = "account.txt";
-    private static final String USER_MEMORY = "user.txt";
-    private static final String TRANSACTION_FILE = "transacation";
+    private static final String TRANSACTION_FILE = "transacation.txt";
 
     private AccountMapper accountMapper;
     private TransactionMapper transactionMapper;
     private AccountPort accountPort;
     private TransactionPort transactionPort;
-    private UserPort userPort;
 
     private User user;
 
     public void cleanUpFiles() {
-        File accountFile = new File(ACCOUNT_MEMORY);
-        if (accountFile.exists()) {
-            accountFile.delete();
+        File fileToDelete = new File(ACCOUNT_MEMORY);
+        if (fileToDelete.exists()) {
+            fileToDelete.delete();
+        }
+        fileToDelete = new File(TRANSACTION_FILE);
+        if (fileToDelete.exists()) {
+            fileToDelete.delete();
         }
     }
 
@@ -54,15 +52,12 @@ public class DepositFeatureTest {
         transactionMapper = new TransactionMapper();
         accountPort = new AccountAdapter(inMemoryAccountRepository, accountMapper);
         transactionPort = new TransactionAdapter(transactionsHistoryRepository, transactionMapper);
-        InMemoryUserRepository inMemoryUserRepository = new InMemoryUserRepository(USER_MEMORY);
-        userPort = new UserAdapter(inMemoryUserRepository, new UserMapper());
     }
 
     @Given("user has {double} in his account")
     public void userHasInHisAccount(Double balance) throws IOException {
         initPorts();
         user = new User("1", "user");
-        userPort.saveUser(user);
 
         Account account = Account.AccountBuilder.builder().accountId("1").userId(user.getId()).balance(balance).build();
         accountPort.saveAccount(account);
@@ -93,7 +88,6 @@ public class DepositFeatureTest {
                 ZonedDateTime now = ZonedDateTime.of(2020, 12, 31, 0, 0, 0, 0, ZoneId.of("UTC"));
                 return now.getZone();
             }
-
             @Override
             public Clock withZone(ZoneId zone) {
                 return null;
@@ -104,6 +98,5 @@ public class DepositFeatureTest {
                 return Instant.now();
             }
         };
-
     }
 }

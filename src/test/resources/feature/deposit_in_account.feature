@@ -8,4 +8,3 @@ Feature: Deposit in account
       Given user has 1000 in his account
       When user makes a deposit of 1000
       Then user should have 2000 in his account
-      #And user should see a message "Deposit of 1000 was successful"

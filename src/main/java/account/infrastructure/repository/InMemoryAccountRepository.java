@@ -24,7 +24,7 @@ public class InMemoryAccountRepository {
     public boolean writeInFile(String content) throws IOException {
         RandomAccessFile stream = new RandomAccessFile(fileName, "rw");
         FileChannel channel = stream.getChannel();
-        FileLock lock = null;
+        FileLock lock;
         try {
             lock = channel.tryLock();
         } catch (final OverlappingFileLockException e) {

@@ -2,10 +2,10 @@ package feature;
 
 import account.domain.model.Account;
 import account.domain.port.AccountPort;
-import account.use_case.Withdraw;
 import account.infrastructure.adapter.AccountAdapter;
 import account.infrastructure.mapper.AccountMapper;
 import account.infrastructure.repository.InMemoryAccountRepository;
+import account.use_case.Withdraw;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -17,11 +17,8 @@ import transactions.infrastructure.adapter.TransactionAdapter;
 import transactions.infrastructure.mapper.TransactionMapper;
 import transactions.infrastructure.repository.InMemoryTransactionsHistoryRepository;
 import user.domain.model.User;
-import user.domain.port.UserPort;
-import user.infrastructure.repository.InMemoryUserRepository;
-import user.infrastructure.adapter.UserAdapter;
-import user.infrastructure.mapper.UserMapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.*;
 
@@ -30,7 +27,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
 public class WithdrawFeatureTest {
     private static final String ACCOUNT_MEMORY = "account.txt";
-    private static final String USER_MEMORY = "user.txt";
 
     private static final String TRANSACTION_FILE = "transaction.txt";
 
@@ -41,13 +37,20 @@ public class WithdrawFeatureTest {
 
     private Throwable throwable;
 
+    public void cleanUpFiles() {
+        File fileToDelete = new File(ACCOUNT_MEMORY);
+        if (fileToDelete.exists()) {
+            fileToDelete.delete();
+        }
+        fileToDelete = new File(TRANSACTION_FILE);
+        if (fileToDelete.exists()) {
+            fileToDelete.delete();
+        }
+    }
+
     @Given("I have {double} in my account")
     public void iHaveInMyAccount(Double balance) throws IOException {
-        InMemoryUserRepository inMemoryUserRepository = new InMemoryUserRepository(USER_MEMORY);
-        UserPort userPort = new UserAdapter(inMemoryUserRepository, new UserMapper());
         user = new User("1", "user");
-
-        userPort.saveUser(user);
 
         Account account = Account.AccountBuilder.builder().accountId("1").userId(user.getId()).balance(balance).build();
 
@@ -107,5 +110,7 @@ public class WithdrawFeatureTest {
     public void iShouldSeeAnErrorMessage(String message) {
         assertThat(throwable).isNotNull();
         assertThat(message).isEqualTo(throwable.getMessage());
+
+        cleanUpFiles();
     }
 }

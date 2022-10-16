@@ -8,7 +8,6 @@ Feature: Withdraw from Account
     Given I have 1000.00 in my account
     When I withdraw 500.00
     Then I should have 500.00 in my account
-    #And I should see a message "You have withdrawn 500.00 from your account"
 
   Scenario: User have not enough money in account
     Given I have 1000.00 in my account

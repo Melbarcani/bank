@@ -22,15 +22,16 @@ public class InMemoryTransactionsHistoryRepository {
         this.fileName = file_name;
     }
 
-    public void writeInFile(String content) throws IOException {
+    public boolean writeInFile(String content) throws IOException {
         RandomAccessFile fileWriter = new RandomAccessFile(fileName, "rw");
         FileChannel channel = fileWriter.getChannel();
-        FileLock lock = null;
+        FileLock lock;
         try {
             lock = channel.tryLock();
         } catch (final OverlappingFileLockException e) {
             fileWriter.close();
             channel.close();
+            return false;
         }
         fileWriter.seek(fileWriter.length());
         fileWriter.write(content.getBytes());
@@ -38,6 +39,7 @@ public class InMemoryTransactionsHistoryRepository {
 
         fileWriter.close();
         channel.close();
+        return true;
     }
 
     public List<TransactionEntity> findAllByAccountId(String accountId) {

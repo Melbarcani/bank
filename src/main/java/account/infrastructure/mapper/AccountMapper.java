@@ -3,18 +3,16 @@ package account.infrastructure.mapper;
 import account.domain.model.Account;
 import account.infrastructure.model.AccountEntity;
 
-import static account.infrastructure.model.FileConstants.RETURN;
+import static account.infrastructure.model.FileConstants.END_OF_LINE;
 import static account.infrastructure.model.FileConstants.SEPARATOR;
 
 public class AccountMapper {
 
     public AccountEntity mapToEntity(Account account) {
-        StringBuilder accountData = new StringBuilder();
-        accountData.append(account.getAccountId()).append(SEPARATOR)
-                .append(account.getUserId()).append(SEPARATOR)
-                .append(account.getBalance()).append(RETURN);
-        return new AccountEntity(accountData.toString());
-
+        String accountData = account.getAccountId() + SEPARATOR +
+                account.getUserId() + SEPARATOR +
+                account.getBalance() + END_OF_LINE;
+        return new AccountEntity(accountData);
     }
 
     public Account mapToDomain(AccountEntity accountEntity) {

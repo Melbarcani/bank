@@ -9,6 +9,7 @@ Feature:
     And I have made a deposit of 2000.00 on 13,01,2012
     And I have made a withdrawal of 500.00 on 14,01,2012
     When I show history
+    Then I should have 3 transactions in my history
     And for every <transactionId> I would see a transaction containing exactly a <date>, a type of operation <credit> or <debit> and its amount, And the <balance>
     Examples:
       | transactionId | date       | credit | debit  | balance |
